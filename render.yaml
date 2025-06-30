@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: faq-voice-chatbot
+    env: docker
+    plan: free
+    disk:
+      name: data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      # Add other environment variables as needed 

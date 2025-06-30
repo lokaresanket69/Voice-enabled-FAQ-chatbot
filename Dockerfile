@@ -19,8 +19,8 @@ RUN pip install -r requirements.txt
 # Copy project files
 COPY . .
 
-# Expose Streamlit's default port
-EXPOSE 8501
+# Expose Render's default port
+EXPOSE 10000
 
-# Run Streamlit
-CMD ["streamlit", "run", "ecommerce_streamlit_app.py", "--server.port", "8501", "--server.address", "0.0.0.0"] 
+# Run Streamlit on Render's default port
+CMD ["streamlit", "run", "ecommerce_streamlit_app.py", "--server.port", "10000", "--server.address", "0.0.0.0"] 

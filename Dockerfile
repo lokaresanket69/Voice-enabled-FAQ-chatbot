@@ -8,8 +8,10 @@ ENV PYTHONUNBUFFERED=1
 # Set work directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+# Install system dependencies and build tools for pyaudio
+RUN apt-get update && \
+    apt-get install -y ffmpeg gcc libasound2-dev portaudio19-dev libportaudio2 libportaudiocpp0 libffi-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY requirements.txt .

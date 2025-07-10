@@ -18,36 +18,10 @@ class EcommerceChatbot:
         self.current_conversation_id = None
         self.db = ConversationDatabase()
         
-        # Sample product database (in a real app, this would be a database)
-        self.products = {
-            "electronics": {
-                "smartphones": [
-                    {"name": "iPhone 15 Pro", "price": 999, "features": ["A17 Pro chip", "48MP camera", "Titanium design"]},
-                    {"name": "Samsung Galaxy S24", "price": 899, "features": ["Snapdragon 8 Gen 3", "200MP camera", "AI features"]}
-                ],
-                "laptops": [
-                    {"name": "MacBook Pro 14", "price": 1999, "features": ["M3 chip", "14-inch display", "18GB RAM"]},
-                    {"name": "Dell XPS 13", "price": 1299, "features": ["Intel i7", "13-inch display", "16GB RAM"]}
-                ]
-            },
-            "clothing": {
-                "shirts": [
-                    {"name": "Cotton T-Shirt", "price": 25, "features": ["100% cotton", "Multiple colors", "Sizes XS-XXL"]},
-                    {"name": "Polo Shirt", "price": 45, "features": ["Classic fit", "Breathable fabric", "Professional look"]}
-                ],
-                "jeans": [
-                    {"name": "Slim Fit Jeans", "price": 79, "features": ["Stretch denim", "Modern fit", "Multiple washes"]}
-                ]
-            },
-            "home": {
-                "kitchen": [
-                    {"name": "Coffee Maker", "price": 89, "features": ["Programmable", "12-cup capacity", "Auto-shutoff"]},
-                    {"name": "Blender", "price": 65, "features": ["1000W motor", "6-speed settings", "BPA-free"]}
-                ]
-            }
-        }
+        # Load products from data.txt
+        self.products = self.load_products_from_file("data.txt")
         
-        self.system_prompt = """You are Alex, a friendly and knowledgeable e-commerce customer service representative. You work for ShopSmart, an online retail store.
+        self.system_prompt = """You are Harvey Spectre, a friendly and knowledgeable e-commerce customer service representative. You work for Ecokart, an online retail store.
 
 Your personality:
 - Warm, conversational, and genuinely helpful
@@ -79,7 +53,7 @@ Remember: You're here to make shopping easy and enjoyable! 😊"""
     def start_new_conversation(self, title=None, summary=None, tags=None):
         """Start a new conversation session"""
         if not title:
-            title = f"ShopSmart Session - {len(self.db.get_all_conversations()) + 1}"
+            title = f"Ecokart Session - {len(self.db.get_all_conversations()) + 1}"
         
         self.current_conversation_id = self.db.create_conversation(title, summary, tags)
         self.conversation_history = []
@@ -116,43 +90,67 @@ Remember: You're here to make shopping easy and enjoyable! 😊"""
         
         return "\n".join(context_parts)
 
+    def load_products_from_file(self, filepath):
+        """Load products from a JSON file (data.txt)"""
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return data.get("products", [])
+        except Exception as e:
+            logging.error(f"Error loading products from {filepath}: {e}")
+            return []
+
+    def find_relevant_products(self, user_message, max_results=3):
+        """Find products relevant to the user message by keyword match in name or description"""
+        user_message_lower = user_message.lower()
+        results = []
+        for product in self.products:
+            if (user_message_lower in product.get("name", "").lower() or
+                user_message_lower in product.get("description", "").lower()):
+                results.append(product)
+            elif any(word in product.get("name", "").lower() or word in product.get("description", "").lower() for word in user_message_lower.split()):
+                results.append(product)
+            if len(results) >= max_results:
+                break
+        return results
+
     def get_response(self, user_message, conversation_context=""):
-        """Generate a human-like response to customer queries"""
-        
+        """Generate a human-like response to customer queries, including relevant product info from data.txt"""
         # If no conversation is active, start a new one
         if self.current_conversation_id is None:
             self.start_new_conversation()
-        
         # Get relevant context from previous conversations
         previous_context = self.get_conversation_context(user_message)
-        
+        # Find relevant products
+        relevant_products = self.find_relevant_products(user_message)
+        product_context = ""
+        if relevant_products:
+            product_context = "\n\nRelevant products from Ecokart catalog:\n"
+            for p in relevant_products:
+                product_context += f"- {p['name']}: {p['description']} (Price: £{p['price']})\n"
         # Combine all context
         full_context = ""
         if conversation_context:
             full_context += f"Current context: {conversation_context}\n"
         if previous_context:
             full_context += f"Previous conversations: {previous_context}\n"
-        
+        if product_context:
+            full_context += product_context
         # Add user message to conversation history
         self.conversation_history.append({"role": "user", "content": user_message})
-        
         # Save user message to database
         self.db.add_message(self.current_conversation_id, "user", user_message)
-        
         # Create the full prompt with context
         messages = [
             {"role": "system", "content": self.system_prompt}
         ]
-        
         # Add context if available
         if full_context.strip():
             messages.append({"role": "system", "content": f"Context information:\n{full_context}"})
-        
         # Add recent conversation history (last 10 messages for context)
         recent_history = self.conversation_history[-10:] if len(self.conversation_history) > 10 else self.conversation_history
         for msg in recent_history:
             messages.append({"role": msg["role"], "content": msg["content"]})
-        
         try:
             response = self.client.chat.completions.create(
                 messages=messages,
@@ -160,27 +158,19 @@ Remember: You're here to make shopping easy and enjoyable! 😊"""
                 max_tokens=300,
                 temperature=0.8
             )
-            
             bot_response = response.choices[0].message.content.strip()
-            
             # Add bot response to conversation history
             self.conversation_history.append({"role": "assistant", "content": bot_response})
-            
             # Save bot response to database
             self.db.add_message(self.current_conversation_id, "assistant", bot_response)
-            
             # Extract and save context from the conversation
             self._extract_and_save_context(user_message, bot_response)
-            
             return bot_response
-            
         except Exception as e:
             error_response = f"I'm having trouble connecting right now. Can you try again in a moment? 😅"
             logging.error(f"Error generating response: {e}")
-            
             # Save error response to database
             self.db.add_message(self.current_conversation_id, "assistant", error_response)
-            
             return error_response
 
     def _extract_and_save_context(self, user_message, bot_response):
@@ -307,5 +297,5 @@ if __name__ == "__main__":
     for query in test_queries:
         print(f"Customer: {query}")
         response = chatbot.get_response(query)
-        print(f"Alex: {response}")
+        print(f"Harvey Spectre: {response}")
         print("-" * 50) 

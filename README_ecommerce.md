@@ -1,6 +1,6 @@
 # 🛍️ ShopSmart E-commerce Voice Assistant
 
-A conversational AI assistant for e-commerce that can chat like a real human! Meet Alex, your friendly shopping assistant who can help you find products, answer questions about orders, and provide a natural shopping experience through both voice and text interactions.
+A conversational AI assistant for e-commerce that can chat like a real human! Meet Harvey Spectre, your friendly shopping assistant who can help you find products, answer questions about orders, and provide a natural shopping experience through both voice and text interactions.
 
 ## ✨ Features
 
@@ -98,19 +98,19 @@ python ecommerce_brain.py
 ### Product Inquiries
 ```
 Customer: "I'm looking for a new smartphone under $1000"
-Alex: "Great choice! I found some excellent options for you. The iPhone 15 Pro at $999 has an A17 Pro chip and 48MP camera, while the Samsung Galaxy S24 at $899 features a Snapdragon 8 Gen 3 and 200MP camera. Both are fantastic choices! What's most important to you - camera quality, performance, or battery life? 📱"
+Harvey Spectre: "Great choice! I found some excellent options for you. The iPhone 15 Pro at $999 has an A17 Pro chip and 48MP camera, while the Samsung Galaxy S24 at $899 features a Snapdragon 8 Gen 3 and 200MP camera. Both are fantastic choices! What's most important to you - camera quality, performance, or battery life? 📱"
 ```
 
 ### Order Support
 ```
 Customer: "What's your return policy?"
-Alex: "We want you to be completely happy with your purchase! Our return policy is pretty straightforward - you have 30 days from delivery to return most items in their original condition. Electronics have a 14-day return window. Just make sure the item is unused and in its original packaging. Need help with a specific return? 😊"
+Harvey Spectre: "We want you to be completely happy with your purchase! Our return policy is pretty straightforward - you have 30 days from delivery to return most items in their original condition. Electronics have a 14-day return window. Just make sure the item is unused and in its original packaging. Need help with a specific return? 😊"
 ```
 
 ### General Questions
 ```
 Customer: "How long does shipping take?"
-Alex: "Shipping times depend on your location and the shipping method you choose! Standard shipping usually takes 3-5 business days, while express shipping gets your order to you in 1-2 business days. We also offer same-day delivery in select areas. Where are you located? I can give you a more specific estimate! 🚚"
+Harvey Spectre: "Shipping times depend on your location and the shipping method you choose! Standard shipping usually takes 3-5 business days, while express shipping gets your order to you in 1-2 business days. We also offer same-day delivery in select areas. Where are you located? I can give you a more specific estimate! 🚚"
 ```
 
 ## 🛠️ Customization
@@ -138,7 +138,7 @@ self.voice_name = "Your_Preferred_Voice"  # ElevenLabs voice name
 ```
 
 ### Customizing Personality
-Update the `system_prompt` in `ecommerce_brain.py` to change Alex's personality and responses.
+Update the `system_prompt` in `ecommerce_brain.py` to change Harvey Spectre's personality and responses.
 
 ## 🔧 API Keys Required
 
@@ -210,4 +210,6 @@ If you encounter any issues:
 
 ## 🎉 Enjoy Shopping!
 
-Start your conversation with Alex and experience the future of e-commerce customer service! 🛍️✨ 
+Start your conversation with Harvey Spectre and experience the future of e-commerce customer service! 🛍️✨ 
+
+This project is part of the Ecokart E-commerce Voice Assistant suite. 

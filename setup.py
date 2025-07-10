@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Setup script for ShopSmart E-commerce Voice Assistant
+Setup script for Ecokart E-commerce Voice Assistant
 This script helps users configure the chatbot and check their setup
 """
 
@@ -110,7 +110,7 @@ def create_env_file():
     """Create .env file template"""
     print("\n📝 Creating .env file template...")
     
-    env_content = """# ShopSmart E-commerce Voice Assistant Configuration
+    env_content = """# Ecokart E-commerce Voice Assistant Configuration
 # Get your API keys from:
 # Groq: https://console.groq.com/
 # ElevenLabs: https://elevenlabs.io/
@@ -153,7 +153,7 @@ def run_quick_test():
 
 def main():
     """Main setup function"""
-    print("🛍️ ShopSmart E-commerce Voice Assistant Setup")
+    print("🛍️ Ecokart E-commerce Voice Assistant Setup")
     print("=" * 50)
     
     # Check Python version

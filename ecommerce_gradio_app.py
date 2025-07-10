@@ -125,14 +125,14 @@ class EcommerceGradioApp:
         }
         """
         
-        with gr.Blocks(css=css, title="ShopSmart E-commerce Voice Assistant") as interface:
+        with gr.Blocks(css=css, title="Ecokart E-commerce Voice Assistant") as interface:
             
             # Header
             with gr.Row():
                 gr.HTML("""
                 <div class="header">
-                    <h1>🛍️ ShopSmart Voice Assistant</h1>
-                    <p>Meet Alex, your friendly AI shopping assistant! 💬</p>
+                    <h1>🛍️ Ecokart Voice Assistant</h1>
+                    <p>Meet Harvey Spectre, your friendly AI shopping assistant! 💬</p>
                 </div>
                 """)
             
@@ -141,7 +141,7 @@ class EcommerceGradioApp:
                 with gr.Column(scale=2):
                     # Chat interface
                     chatbot = gr.Chatbot(
-                        label="💬 Chat with Alex",
+                        label="💬 Chat with Harvey Spectre",
                         height=400,
                         show_label=True,
                         container=True,
@@ -259,7 +259,7 @@ class EcommerceGradioApp:
             )
             
             # Welcome message
-            welcome_message = "Hi there! 👋 I'm Alex, your friendly shopping assistant at ShopSmart. I'm here to help you find the perfect products, answer questions about orders, or assist with anything else you need. What can I help you with today?"
+            welcome_message = "Hi there! 👋 I'm Harvey Spectre, your friendly shopping assistant at Ecokart. I'm here to help you find the perfect products, answer questions about orders, or assist with anything else you need. What can I help you with today?"
             chatbot.value = [[None, welcome_message]]
         
         return interface

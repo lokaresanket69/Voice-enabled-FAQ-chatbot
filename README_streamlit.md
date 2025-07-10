@@ -2,17 +2,17 @@
 
 ## 🛍️ Overview
 
-This is a modern, beautiful Streamlit web interface for the ShopSmart E-commerce Voice Assistant. It provides an intuitive way to interact with Alex, your AI shopping assistant, through both text and voice interactions.
+This is a modern, beautiful Streamlit web interface for the Ecokart E-commerce Voice Assistant. It provides an intuitive way to interact with Harvey Spectre, your AI shopping assistant, through both text and voice interactions.
 
 ## ✨ Features
 
 ### 💬 Text Chat
-- Real-time text-based conversations with Alex
+- Real-time text-based conversations with Harvey Spectre
 - Natural language processing for product queries
 - Context-aware responses
 - Chat history management
 
-### 🎤 Voice Interaction
+### �� Voice Interaction
 - Voice input support (upload audio files)
 - Speech-to-text transcription
 - Text-to-speech response generation
@@ -47,7 +47,7 @@ This is a modern, beautiful Streamlit web interface for the ShopSmart E-commerce
 3. **Open your browser:**
    The app will automatically open at `http://localhost:8501`
 
-## 🎯 What Alex Can Help With
+## 🎯 What Harvey Spectre Can Help With
 
 - 📱 **Product Recommendations** - Find the perfect products for your needs
 - 💰 **Price Comparisons** - Compare prices across different items
@@ -167,4 +167,4 @@ This project is part of the ShopSmart E-commerce Voice Assistant suite.
 
 ---
 
-**Happy Shopping with Alex! 🛍️✨** 
+**Happy Shopping with Harvey Spectre! 🛍️✨** 

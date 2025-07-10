@@ -22,6 +22,10 @@ class EcommerceVoiceAssistant:
     def __init__(self, tts_provider="elevenlabs"):
         self.groq_api_key = os.environ.get("GROQ_API_KEY")
         self.elevenlabs_api_key = os.environ.get("ELEVEN_API_KEY")
+        if not self.groq_api_key:
+            raise RuntimeError("GROQ_API_KEY is missing! Please add it to your .env file in the project root.")
+        if not self.elevenlabs_api_key:
+            raise RuntimeError("ELEVEN_API_KEY is missing! Please add it to your .env file in the project root.")
         self.stt_model = "whisper-large-v3"
         
         # Initialize components
@@ -235,8 +239,8 @@ class EcommerceVoiceAssistant:
         """
         Main conversation loop for voice interaction
         """
-        print("🎉 Welcome to ShopSmart Voice Assistant!")
-        print("🎤 I'm Alex, your friendly shopping assistant. How can I help you today?")
+        print("🎉 Welcome to Ecokart Voice Assistant!")
+        print("🎤 I'm Harvey Spectre, your friendly shopping assistant. How can I help you today?")
         print("💡 You can ask me about products, prices, shipping, returns, or anything else!")
         print("🎵 TTS Provider:", self.tts_provider.upper())
         print("🔇 Say 'goodbye' or 'exit' to end our conversation.")
@@ -244,7 +248,7 @@ class EcommerceVoiceAssistant:
         print("-" * 60)
         
         # Generate and play welcome message
-        welcome_text = "Hi there! I'm Alex, your friendly shopping assistant at ShopSmart. I'm here to help you find the perfect products, answer questions about orders, or assist with anything else you need. What can I help you with today?"
+        welcome_text = "Hi there! I'm Harvey Spectre, your friendly shopping assistant at Ecokart. I'm here to help you find the perfect products, answer questions about orders, or assist with anything else you need. What can I help you with today?"
         welcome_audio = self.text_to_speech(welcome_text, "welcome.wav")
         if welcome_audio:
             self.play_audio(welcome_audio)
@@ -270,7 +274,7 @@ class EcommerceVoiceAssistant:
                 
                 # Check for exit commands
                 if any(phrase in user_message.lower() for phrase in ['goodbye', 'exit', 'quit', 'bye', 'stop']):
-                    print("👋 Goodbye! Thanks for shopping with ShopSmart!")
+                    print("👋 Goodbye! Thanks for shopping with Ecokart!")
                     goodbye_text = "Thanks for chatting with me! Have a great day and happy shopping!"
                     goodbye_audio = self.text_to_speech(goodbye_text, "goodbye.wav")
                     if goodbye_audio:
@@ -297,7 +301,7 @@ class EcommerceVoiceAssistant:
                 
                 # Generate bot response
                 bot_response = self.generate_response(user_message)
-                print(f"🤖 Alex: {bot_response}")
+                print(f"🤖 Harvey Spectre: {bot_response}")
                 
                 # Convert response to speech and play
                 response_audio = self.text_to_speech(bot_response, f"response_{conversation_count}.wav")
@@ -311,7 +315,7 @@ class EcommerceVoiceAssistant:
                     os.remove(audio_file)
                 
             except KeyboardInterrupt:
-                print("\n👋 Goodbye! Thanks for using ShopSmart Voice Assistant!")
+                print("\n👋 Goodbye! Thanks for using Ecokart Voice Assistant!")
                 break
             except Exception as e:
                 logging.error(f"❌ Unexpected error: {e}")
@@ -323,7 +327,7 @@ def main():
     """
     import argparse
     
-    parser = argparse.ArgumentParser(description='ShopSmart E-commerce Voice Assistant')
+    parser = argparse.ArgumentParser(description='Ecokart E-commerce Voice Assistant')
     parser.add_argument('--tts', choices=['elevenlabs', 'gtts'], default='elevenlabs',
                        help='Choose TTS provider (default: elevenlabs)')
     

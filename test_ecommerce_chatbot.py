@@ -14,7 +14,7 @@ load_dotenv()
 def test_chatbot():
     """Test the e-commerce chatbot with various scenarios"""
     
-    print("🛍️ ShopSmart E-commerce Chatbot Test")
+    print("🛍️ Ecokart E-commerce Chatbot Test")
     print("=" * 50)
     
     # Initialize chatbot
@@ -75,7 +75,7 @@ def test_chatbot():
         for query in scenario['queries']:
             print(f"\n👤 Customer: {query}")
             response = chatbot.get_response(query)
-            print(f"🤖 Alex: {response}")
+            print(f"🤖 Harvey Spectre: {response}")
             print("-" * 40)
     
     # Test product search functionality
@@ -123,7 +123,7 @@ def test_conversation_flow():
     for i, user_message in enumerate(conversation, 1):
         print(f"👤 Customer: {user_message}")
         response = chatbot.get_response(user_message)
-        print(f"🤖 Alex: {response}")
+        print(f"🤖 Harvey Spectre: {response}")
         print("-" * 50)
 
 def main():

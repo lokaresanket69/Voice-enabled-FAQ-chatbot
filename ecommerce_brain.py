@@ -100,54 +100,56 @@ Remember: You're here to make shopping easy and enjoyable! 😊"""
             logging.error(f"Error loading products from {filepath}: {e}")
             return []
 
-    def find_relevant_products(self, user_message, max_results=3):
-        """Find products relevant to the user message by keyword match in name or description"""
+    def find_relevant_products(self, user_message, max_results=5):
+        """Find products relevant to the user message by partial, case-insensitive match in name or description"""
         user_message_lower = user_message.lower()
         results = []
         for product in self.products:
-            if (user_message_lower in product.get("name", "").lower() or
-                user_message_lower in product.get("description", "").lower()):
+            # Match if any word in the query is in the product name or description
+            if any(word in product.get("name", "").lower() or word in product.get("description", "").lower() for word in user_message_lower.split()):
                 results.append(product)
-            elif any(word in product.get("name", "").lower() or word in product.get("description", "").lower() for word in user_message_lower.split()):
+            elif user_message_lower in product.get("name", "").lower() or user_message_lower in product.get("description", "").lower():
                 results.append(product)
             if len(results) >= max_results:
                 break
         return results
 
     def get_response(self, user_message, conversation_context=""):
-        """Generate a human-like response to customer queries, including relevant product info from data.txt"""
-        # If no conversation is active, start a new one
+        """Respond with catalog-grounded info for catalog products, otherwise use LLM. For catalog matches, override LLM output with exact catalog fields."""
         if self.current_conversation_id is None:
             self.start_new_conversation()
-        # Get relevant context from previous conversations
         previous_context = self.get_conversation_context(user_message)
-        # Find relevant products
         relevant_products = self.find_relevant_products(user_message)
-        product_context = ""
-        if relevant_products:
-            product_context = "\n\nRelevant products from Ecokart catalog:\n"
-            for p in relevant_products:
-                product_context += f"- {p['name']}: {p['description']} (Price: £{p['price']})\n"
-        # Combine all context
         full_context = ""
         if conversation_context:
             full_context += f"Current context: {conversation_context}\n"
         if previous_context:
             full_context += f"Previous conversations: {previous_context}\n"
-        if product_context:
-            full_context += product_context
-        # Add user message to conversation history
         self.conversation_history.append({"role": "user", "content": user_message})
-        # Save user message to database
         self.db.add_message(self.current_conversation_id, "user", user_message)
-        # Create the full prompt with context
         messages = [
             {"role": "system", "content": self.system_prompt}
         ]
-        # Add context if available
+        catalog_product = None
+        if relevant_products:
+            if len(relevant_products) == 1:
+                catalog_product = relevant_products[0]
+                catalog_context = (
+                    f"CATALOG DATA (use ONLY this info for this product):\n"
+                    f"Product: {catalog_product['name']}\n"
+                    f"Price: £{catalog_product['price']}\n"
+                    f"Description: {catalog_product['description']}\n"
+                    f"INSTRUCTION: If the user asks about this product, you MUST use only the above info (especially price, description, and stock). Do not invent, guess, or use any other information."
+                )
+                messages.append({"role": "system", "content": catalog_context})
+            else:
+                catalog_context = "CATALOG DATA (choose from these, use ONLY catalog info if user selects one):\n"
+                for idx, product in enumerate(relevant_products, 1):
+                    catalog_context += f"{idx}. {product['name']} (Price: £{product['price']})\n"
+                catalog_context += ("\nINSTRUCTION: If the user selects a product from this list, you MUST use only the catalog info for that product. Do not invent, guess, or use any other information.")
+                messages.append({"role": "system", "content": catalog_context})
         if full_context.strip():
             messages.append({"role": "system", "content": f"Context information:\n{full_context}"})
-        # Add recent conversation history (last 10 messages for context)
         recent_history = self.conversation_history[-10:] if len(self.conversation_history) > 10 else self.conversation_history
         for msg in recent_history:
             messages.append({"role": msg["role"], "content": msg["content"]})
@@ -159,17 +161,33 @@ Remember: You're here to make shopping easy and enjoyable! 😊"""
                 temperature=0.8
             )
             bot_response = response.choices[0].message.content.strip()
-            # Add bot response to conversation history
+            # --- Hybrid override: patch LLM output with catalog fields if matched ---
+            if catalog_product:
+                import re
+                # Remove all price-like patterns (dollars, pounds, etc.)
+                price_patterns = [
+                    r'[$£₹]\s?\d+[\d,.]*',           # $29.99, £14.99, ₹2,499.00
+                    r'\d+[\d,.]*\s?(USD|usd|GBP|gbp|INR|inr|EUR|eur|dollars|pounds|rupees|euros)', # 29.99 USD, 14.99 GBP
+                ]
+                for pat in price_patterns:
+                    bot_response = re.sub(pat, '', bot_response)
+                # Always insert the correct price at the top
+                price_line = f"The price for {catalog_product['name']} is £{catalog_product['price']}."
+                # Remove any empty lines at the start
+                bot_response = re.sub(r'^\s+', '', bot_response)
+                bot_response = price_line + '\n' + bot_response
+                # Replace product name if present (case-insensitive)
+                bot_response = re.sub(re.escape(catalog_product['name']), catalog_product['name'], bot_response, flags=re.IGNORECASE)
+                # Optionally, replace description if present (or append if not)
+                if catalog_product['description'] not in bot_response:
+                    bot_response += f"\n\nProduct Description (from catalog): {catalog_product['description']}"
             self.conversation_history.append({"role": "assistant", "content": bot_response})
-            # Save bot response to database
             self.db.add_message(self.current_conversation_id, "assistant", bot_response)
-            # Extract and save context from the conversation
             self._extract_and_save_context(user_message, bot_response)
             return bot_response
         except Exception as e:
             error_response = f"I'm having trouble connecting right now. Can you try again in a moment? 😅"
             logging.error(f"Error generating response: {e}")
-            # Save error response to database
             self.db.add_message(self.current_conversation_id, "assistant", error_response)
             return error_response
 

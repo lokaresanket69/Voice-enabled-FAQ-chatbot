@@ -7,8 +7,8 @@ import logging
 from ecommerce_brain import EcommerceChatbot
 from ecommerce_voice_assistant import EcommerceVoiceAssistant
 
-# Setup logging
-logging.basicConfig(level=logging.INFO)
+# Setup logging to file
+logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s')
 
 class EcommerceGradioApp:
     def __init__(self):
@@ -18,8 +18,8 @@ class EcommerceGradioApp:
         
     def process_text_input(self, user_message, history):
         """Process text input and return response"""
-        if not user_message.strip():
-            return "", history
+        if not user_message or not user_message.strip():
+            return "Please enter a message.", history
             
         try:
             # Generate response
@@ -57,6 +57,13 @@ class EcommerceGradioApp:
             # Convert response to speech
             response_audio = self.voice_assistant.text_to_speech(bot_response, "gradio_response.wav")
             
+            # Clean up temp audio file
+            try:
+                if os.path.exists(audio_filepath):
+                    os.remove(audio_filepath)
+            except Exception as cleanup_err:
+                logging.warning(f"Error cleaning up temp audio file: {cleanup_err}")
+
             # Create conversation history for display
             history = [[transcribed_text, bot_response]]
             

@@ -173,12 +173,17 @@ class EcommerceStreamlitApp:
         self.voice_assistant.set_tts_provider("gtts")
             
     def process_text_input(self, user_message):
-        """Process text input and return response"""
+        """Process text input and return response and audio path"""
         if not user_message.strip():
-            return None
+            return None, None
         try:
             # Generate response using chatbot with conversation context
             bot_response = self.chatbot.get_response(user_message)
+            # Generate TTS audio for the response
+            import uuid, os
+            audio_filename = f"streamlit_response_{uuid.uuid4().hex}.wav"
+            audio_filepath = os.path.abspath(audio_filename)
+            response_audio_path = self.voice_assistant.text_to_speech(bot_response, audio_filepath)
             # After first user message, auto-update title if default
             conv_id = self.chatbot.current_conversation_id
             conversation = self.chatbot.db.get_conversation(conv_id)
@@ -187,10 +192,10 @@ class EcommerceStreamlitApp:
                 if not current_title or current_title.lower() in ["general inquiry", "ecokart session", "untitled"] or current_title.lower().startswith("ecokart session"):
                     new_title = self.smart_auto_title(conversation)
                     self.update_conversation_title(conv_id, new_title)
-            return bot_response
+            return bot_response, response_audio_path
         except Exception as e:
             logging.error(f"Error processing text input: {e}")
-            return "I'm sorry, I'm having trouble processing your request right now. Could you try again?"
+            return "I'm sorry, I'm having trouble processing your request right now. Could you try again?", None
     
     def process_voice_input(self, audio_file, tts_provider):
         """Process voice input and return response"""
@@ -543,11 +548,12 @@ class EcommerceStreamlitApp:
                 # Add user message
                 st.session_state.messages.append({"role": "user", "content": text_input})
                 
-                # Get bot response
-                bot_response = self.process_text_input(text_input)
+                # Get bot response and audio
+                bot_response, audio_response_path = self.process_text_input(text_input)
                 if bot_response:
                     st.session_state.messages.append({"role": "assistant", "content": bot_response})
-                
+                if audio_response_path:
+                    st.session_state.audio_response = audio_response_path
                 st.rerun()
             
             # Display audio response if available
